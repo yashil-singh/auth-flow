@@ -10,6 +10,7 @@ export type ResponsePayload = {
   status?: number;
   message?: string;
   data?: any;
+  success?: boolean;
 };
 
 export interface AuthenticatedRequest extends Request {

@@ -15,7 +15,7 @@ const errorHandler = (
     message = "There were some validation errors.";
   }
 
-  sendResponse({ res, status, message });
+  sendResponse({ res, status, message, success: false });
 };
 
 export default errorHandler;

@@ -64,11 +64,13 @@ export const signup = async (req: Request, res: Response) => {
     REFRESH_TOKEN_COOKIE_EXPIRY
   );
 
+  const loggedInUser = await UserModel.findById(user._id);
+
   sendResponse({
     res,
     message: "Account created.",
     status: 201,
-    data: { accessToken },
+    data: { accessToken, user: loggedInUser },
   });
 };
 
@@ -102,7 +104,13 @@ export const login = async (req: Request, res: Response) => {
     REFRESH_TOKEN_COOKIE_EXPIRY
   );
 
-  sendResponse({ res, message: "Logged in.", data: { accessToken } });
+  const loggedInUser = await UserModel.findById(user._id);
+
+  sendResponse({
+    res,
+    message: "Logged in.",
+    data: { accessToken, user: loggedInUser },
+  });
 };
 
 export const logout = async (req: Request, res: Response) => {
@@ -154,6 +162,13 @@ export const refresh = async (req: Request, res: Response) => {
   user.refreshTokens = newRefreshTokens;
   await user.save();
 
+  setCookieToken(
+    res,
+    REFRESH_TOKEN_NAME,
+    newRefreshToken,
+    REFRESH_TOKEN_COOKIE_EXPIRY
+  );
+
   sendResponse({ res, data: { accessToken } });
 };
 
@@ -191,7 +206,7 @@ export const verifyAccount = async (req: Request, res: Response) => {
   const userPayload = (req as AuthenticatedRequest).user;
   const userId = userPayload.sub;
 
-  const { token: requestToken } = req.query;
+  const { token: requestToken } = req.body;
 
   if (!requestToken) return throwError("Verification token is required.");
 

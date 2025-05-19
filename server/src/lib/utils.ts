@@ -3,7 +3,7 @@ import { SALT, SECRET } from "./constants";
 import { JWTPayload, ResponsePayload } from "./types";
 import { jwtVerify, SignJWT } from "jose";
 import { Response } from "express";
-import crypto from "crypto";
+import otpGenerator from "otp-generator";
 
 export const hashPassword = async (password: string) => {
   return await bcrypt.hash(password, SALT);
@@ -71,11 +71,12 @@ export const sendResponse = ({
   message = "Request successful.",
   status = 200,
   data = null,
+  success = true,
 }: ResponsePayload) => {
-  res.status(status).send({ message, data });
+  res.status(status).send({ message, data, success });
 };
 
-export const createVerificationToken = (len: number = 24) => {
-  const token = crypto.randomBytes(len).toString("hex");
+export const createVerificationToken = (len: number = 6) => {
+  const token = otpGenerator.generate(len, { specialChars: false });
   return token;
 };
